@@ -417,12 +417,13 @@ def main():
         }
         /* Style for the message input area */
         .message-input {
-            background-color: transparent;
-            color: #333333; 
+            background-color: rgba(255, 255, 255, 0.1); /* Slightly transparent background for better theme blending */
+            color: #f0f0f0; /* Light gray text color to ensure readability in dark mode */
             border: 1px solid #dcdcdc;
             border-radius: 10px;
             padding: 10px;
         }
+
         /* Center the send button */
         .send-button {
             display: flex;
