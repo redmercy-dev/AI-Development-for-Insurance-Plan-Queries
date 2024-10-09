@@ -309,7 +309,7 @@ def handle_tool_outputs(run):
                 raise ValueError(f"Function {function_name} not found in available_functions.")
             arguments = json.loads(call.function.arguments)
             # Use safe_tool_call if necessary
-            with st.spinner(f"Executing {function_name}..."):
+            with st.spinner(f"Executing a detailed search..."):
                 output = safe_tool_call(function, function_name, **arguments)
 
             #st.write(f"Output from {function_name}:")
