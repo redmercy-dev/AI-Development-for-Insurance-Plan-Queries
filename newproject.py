@@ -312,8 +312,8 @@ def handle_tool_outputs(run):
             with st.spinner(f"Executing {function_name}..."):
                 output = safe_tool_call(function, function_name, **arguments)
 
-            st.write(f"Output from {function_name}:")
-            st.json(output)
+            #st.write(f"Output from {function_name}:")
+            #st.json(output)
             tool_outputs.append({
                 "tool_call_id": call.id,
                 "output": json.dumps(output)
