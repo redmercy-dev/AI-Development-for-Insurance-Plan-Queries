@@ -409,20 +409,24 @@ def main():
         
         /* Style for user messages */
         .user-message {
-            background-color: #f0f0f0;
+            background-color: rgba(255, 255, 255, 0.1); /* Slightly transparent for theme blending */
+            color: #f0f0f0; /* Light gray text color for better readability */
             border: 1px solid #dcdcdc;
             border-radius: 10px;
             padding: 10px;
             margin-bottom: 10px;
         }
+        
         /* Style for assistant messages */
         .assistant-message {
-            background-color: #e6f7ff;
+            background-color: rgba(0, 123, 255, 0.1); /* Slightly transparent blue background */
+            color: #f0f0f0; /* Light gray text color for better readability */
             border: 1px solid #91d5ff;
             border-radius: 10px;
             padding: 10px;
             margin-bottom: 10px;
         }
+
         
         /* Center the send button */
         .send-button {
