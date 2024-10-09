@@ -275,11 +275,12 @@ Remember to consistently follow this approach, ensuring thorough searches and co
 
 # Function to create an assistant and save its ID
 def get_or_create_assistant():
-    assistant_id_file = 'assistant_id23.txt'
-    if os.path.exists(assistant_id_file):
-        with open(assistant_id_file, 'r') as f:
-            assistant_id = "asst_HOYn8BMsGeAhIkXiSTh4iivx"  # f.read().strip() #asst_srRUV5DDSscR0ZcJZzEowHYG
-            st.sidebar.success(f"Using existing assistant with ID: {assistant_id}")
+    """Check if the assistant ID is hardcoded or create a new one."""
+    # Hardcoded assistant ID
+    assistant_id = "asst_HOYn8BMsGeAhIkXiSTh4iivx"
+    
+    if assistant_id:
+        st.sidebar.success(f"Using existing assistant with ID: {assistant_id}")
     else:
         try:
             with st.spinner("Creating a new assistant..."):
@@ -290,13 +291,13 @@ def get_or_create_assistant():
                     tools=tools
                 )
             assistant_id = assistant.id
-            with open(assistant_id_file, 'w') as f:
-                f.write(assistant_id)
             st.sidebar.success(f"Assistant created successfully with ID: {assistant_id}")
         except Exception as e:
             st.error(f"Failed to create assistant: {e}")
             assistant_id = None
+    
     return assistant_id
+
 
 # Function to handle tool outputs
 def handle_tool_outputs(run):
