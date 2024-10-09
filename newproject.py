@@ -399,6 +399,14 @@ def main():
     # Apply custom styling
     st.markdown("""
         <style>
+        /* Override default Streamlit text area styling for compatibility with both light and dark themes */
+        .stTextArea textarea {
+            background-color: rgba(255, 255, 255, 0.1); /* Slightly transparent background */
+            color: #f0f0f0; /* Light gray text color for readability in dark mode */
+            border: 1px solid #dcdcdc;
+            border-radius: 10px;
+        }
+        
         /* Style for user messages */
         .user-message {
             background-color: #f0f0f0;
@@ -415,15 +423,7 @@ def main():
             padding: 10px;
             margin-bottom: 10px;
         }
-        /* Style for the message input area */
-        .message-input {
-            background-color: rgba(255, 255, 255, 0.1); /* Slightly transparent background for better theme blending */
-            color: #f0f0f0; /* Light gray text color to ensure readability in dark mode */
-            border: 1px solid #dcdcdc;
-            border-radius: 10px;
-            padding: 10px;
-        }
-
+        
         /* Center the send button */
         .send-button {
             display: flex;
@@ -439,6 +439,7 @@ def main():
         }
         </style>
         """, unsafe_allow_html=True)
+
 
     # Chat interface
     if 'messages' not in st.session_state:
