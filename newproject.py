@@ -219,8 +219,9 @@ available_functions = {
 
 # Instructions for the assistant
 instructions = """
-You are responsible for scraping provider data from given websites, focusing on obtaining complete information for each provider. Use the scraping functions and search results to gather the necessary details.
-
+You are responsible for scraping provider data from given websites, focusing on obtaining complete information for each provider. Use the scraping functions and search results to gather the necessary links.
+You are also responsible for answering the user general questions about  Insurance Plan and you need to answer based only on the knowledge files uploaded.
+When the user asks something that is not related to scrapping you will directly go through the uploaded files and answer the user questions. 
 ### Key Information to Collect:
 
 Present the following information for each provider in a table format:
@@ -254,13 +255,13 @@ Adjust the page number and search term as needed. You can validate the correct l
 
 ### Scraping Instructions:
 
-1. Use the `scrape_provider_search` function to scrape provider listings and details from the provided URL.
+1. Use the `scrape_provider_search` function to scrape provider listings and extract their links from the provided URL.
 
-2. Use the `scrape_content` function to get and correct any other information; it works in general.
+2. Use the `scrape_content` function to retrieve additional links as needed.
 
 3. If you encounter any difficulties or missing information while scraping, inform the user and offer to try alternative search methods or provide partial results.
 
-4. Always aim to deliver the most complete and accurate provider information possible.
+4. Always aim to deliver the most complete and accurate provider information possible using the available links.
 
 ### Additional Notes:
 
@@ -271,6 +272,7 @@ Adjust the page number and search term as needed. You can validate the correct l
 - If the initial `scrape_provider_search` doesn't yield results, use `scrape_content` to get href results, then use it again on those new href, and finally use `scrape_provider_search` to get the doctors' details.
 
 Remember to consistently follow this approach, ensuring thorough searches and comprehensive provider information from the Sonder Health Plans website.
+You can check online for any information using the scrape_content custom function when needed.
 """
 
 # Function to create an assistant and save its ID
