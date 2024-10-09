@@ -417,6 +417,7 @@ def main():
         }
         /* Style for the message input area */
         .message-input {
+            background-color: transparent;
             color: #333333; 
             border: 1px solid #dcdcdc;
             border-radius: 10px;
