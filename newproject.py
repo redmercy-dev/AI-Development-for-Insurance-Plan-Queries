@@ -395,54 +395,87 @@ def main():
 
     # Get or create assistant
     assistant_id = get_or_create_assistant()
-
     # Apply custom styling
     st.markdown("""
         <style>
-        /* Override default Streamlit text area styling for compatibility with both light and dark themes */
+        /* ==============================
+           General Styling for Consistency
+           ============================== */
+    
+        /* Override default Streamlit text area styling for better compatibility with both light and dark themes */
         .stTextArea textarea {
-            background-color: rgba(255, 255, 255, 0.1); /* Slightly transparent background */
-            color: #f0f0f0; /* Light gray text color for readability in dark mode */
-            border: 1px solid #dcdcdc;
-            border-radius: 10px;
+            background-color: rgba(240, 240, 240, 0.9); /* Light gray background for visibility in both themes */
+            color: #333333; /* Dark gray text for good readability on both themes */
+            border: 1px solid #dcdcdc; /* Soft border for subtle separation */
+            border-radius: 10px; /* Rounded edges for a clean look */
         }
-        
-        /* Style for user messages */
+    
+        /* ==============================
+           User and Assistant Message Styling
+           ============================== */
+    
+        /* Style for user messages to maintain clear distinction */
         .user-message {
-            background-color: rgba(255, 255, 255, 0.1); /* Slightly transparent for theme blending */
-            color: #f0f0f0; /* Light gray text color for better readability */
-            border: 1px solid #dcdcdc;
-            border-radius: 10px;
-            padding: 10px;
-            margin-bottom: 10px;
+            background-color: rgba(240, 240, 240, 0.9); /* Light gray background suitable for both themes */
+            color: #333333; /* Dark gray text ensures readability on light backgrounds */
+            border: 1px solid #dcdcdc; /* Subtle border for user message clarity */
+            border-radius: 10px; /* Rounded corners for smooth appearance */
+            padding: 10px; /* Adequate spacing for text */
+            margin-bottom: 10px; /* Space between messages */
         }
-        
-        /* Style for assistant messages */
+    
+        /* Style for assistant messages for visual contrast */
         .assistant-message {
-            background-color: rgba(0, 123, 255, 0.1); /* Slightly transparent blue background */
-            color: #f0f0f0; /* Light gray text color for better readability */
-            border: 1px solid #91d5ff;
-            border-radius: 10px;
-            padding: 10px;
-            margin-bottom: 10px;
+            background-color: rgba(220, 240, 255, 0.9); /* Light blue background for contrast */
+            color: #333333; /* Dark gray text for readability on light backgrounds */
+            border: 1px solid #91d5ff; /* Blue border for assistant message clarity */
+            border-radius: 10px; /* Rounded edges to match design consistency */
+            padding: 10px; /* Uniform spacing for assistant message content */
+            margin-bottom: 10px; /* Space between messages */
         }
-
-        
-        /* Center the send button */
+    
+        /* ==============================
+           Additional UI Element Styling
+           ============================== */
+    
+        /* Style for the message input area to blend with theme */
+        .message-input {
+            background-color: rgba(240, 240, 240, 0.9); /* Light gray to blend seamlessly */
+            color: #333333; /* Ensures text color is readable */
+            border: 1px solid #dcdcdc; /* Soft border to fit the overall design */
+            border-radius: 10px; /* Rounded corners for consistency */
+            padding: 10px; /* Comfortable spacing inside the input area */
+        }
+    
+        /* Center the send button for a better user experience */
         .send-button {
-            display: flex;
-            justify-content: center;
-            margin-top: 10px;
+            display: flex; /* Flexbox for centering */
+            justify-content: center; /* Center alignment of the button */
+            margin-top: 10px; /* Space above the button */
         }
-        /* Adjust width of text input and button */
+    
+        /* Ensures text input areas are responsive */
         .stTextInput, .stTextArea {
-            width: 100% !important;
+            width: 100% !important; /* Full width for better responsiveness */
         }
+    
+        /* Style adjustments for Streamlit buttons */
         .stButton button {
-            width: 100%;
+            width: 100%; /* Full-width button for a cleaner layout */
+            background-color: #007BFF; /* Blue color for consistency with assistant messages */
+            color: white; /* White text for button readability */
+            border: none; /* Remove default border for a modern look */
+            border-radius: 8px; /* Rounded corners for smoother appearance */
+            padding: 10px; /* Adequate padding for a larger click area */
+            cursor: pointer; /* Pointer cursor to indicate action */
+        }
+    
+        .stButton button:hover {
+            background-color: #0056b3; /* Darker blue on hover for better interaction feedback */
         }
         </style>
         """, unsafe_allow_html=True)
+
 
 
     # Chat interface
