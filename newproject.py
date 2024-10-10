@@ -29,6 +29,32 @@ if 'global_thread' not in st.session_state:
 PROXY_URL = 'https://proxy.scrapeops.io/v1/'
 API_KEY = proxy_api_key
 
+# Function to create an assistant and save its ID
+def get_or_create_assistant():
+    """Check if the assistant ID is hardcoded or create a new one."""
+    # Hardcoded assistant ID
+    assistant_id = "asst_HOYn8BMsGeAhIkXiSTh4iivx"
+    
+    if assistant_id:
+        st.sidebar.success(f"Using existing assistant with ID: {assistant_id}")
+    else:
+        try:
+            with st.spinner("Creating a new assistant..."):
+                assistant = client.beta.assistants.create(
+                    name="ProviderFetcher",
+                    instructions=instructions,
+                    model="gpt-4o-mini",
+                    tools=tools
+                )
+            assistant_id = assistant.id
+            st.sidebar.success(f"Assistant created successfully with ID: {assistant_id}")
+        except Exception as e:
+            st.error(f"Failed to create assistant: {e}")
+            assistant_id = None
+    
+    return assistant_id
+
+
 def fetch_html_via_proxy(target_url):
     """Fetches HTML from the target URL using the proxy service."""
     params = {
@@ -49,6 +75,7 @@ def fetch_html_via_proxy(target_url):
     except requests.exceptions.RequestException as e:
         st.error(f"An error occurred while fetching {target_url}: {e}")
         return None
+
 
 def scrape_content(url):
     """Fetches HTML from the target URL using the proxy service, extracts text content, and deduplicates href links."""
@@ -72,16 +99,13 @@ def scrape_content(url):
                 # Extract and clean the text content
                 content = soup.get_text(separator="\n", strip=True)
                 
-                # Extract href links and deduplicate them using a set
-                links = {a.get('href') for a in soup.find_all('a', href=True)}
-                
-                # Filter out any None links (if some anchor tags don't have hrefs)
-                links = {link for link in links if link}
+                # Extract and deduplicate href links using set comprehension
+                links = sorted({a.get('href') for a in soup.find_all('a', href=True) if a.get('href')})
                 
                 st.success(f"Successfully scraped content from {url}")
                 return {
                     'content': content,
-                    'links': sorted(links)  # Return the sorted list of links
+                    'links': links  # Return the sorted list of links
                 }
             else:
                 st.error(f"Failed to fetch the page: {url}, status code: {response.status_code}")
@@ -96,57 +120,48 @@ def scrape_content(url):
         st.error(f"An error occurred while scraping {url}: {e}")
         return None
 
-
 def extract_data(soup):
     """Extracts provider details from the HTML soup and returns the data as a list of dictionaries."""
-    results = []
     listings = soup.find_all('div', class_='directorist-listing-single__content')
 
-    for listing in listings:
-        data = {}
-
-        # Extract href and name
-        header_div = listing.find_previous_sibling('div', class_='directorist-listing-single__header')
-        if header_div:
-            link_tag = header_div.find('a')
-            if link_tag:
-                data['href'] = link_tag['href']
-                data['name'] = link_tag.text.strip()
-
-        # Extract details inside ul -> li
-        info_div = listing.find('div', class_='directorist-listing-single__info--list')
-        if info_div:
-            list_items = info_div.find_all('li')
-            for li in list_items:
-                text_div = li.find('div', class_='directorist-listing-card-text')
-                if text_div and text_div.i:
-                    icon_style = text_div.i.get('style', '')
-                    text_content = text_div.text.strip()
-                    # Extract clinic name
-                    if "comment-solid" in icon_style and not "NPI" in text_content:
-                        data['clinic'] = text_content
-
-                    # Extract address
-                    if "map-marker-solid" in icon_style:
-                        data['address'] = text_content
-
-                    # Extract NPI
-                    elif "comment-solid" in icon_style and "NPI" in text_content:
-                        data['NPI'] = text_content.split(":")[1].strip()
-
-                # Extract phone number
-                phone_div = li.find('div', class_='directorist-listing-card-phone')
-                if phone_div and phone_div.a:
-                    data['phone'] = phone_div.a.text.strip()
-
-                # Extract "Accepting New Patients" status
-                select_div = li.find('div', class_='directorist-listing-card-select')
-                if select_div and select_div.i and "check-circle-solid" in select_div.i.get('style', ''):
-                    data['accepting_patients'] = select_div.text.split(":")[1].strip()
-
-        results.append(data)
-
+    # Use list comprehension to extract data from listings
+    results = [
+        {
+            **(
+                {
+                    'href': (link_tag := listing.find_previous_sibling('div', class_='directorist-listing-single__header').find('a')).get('href'),
+                    'name': link_tag.text.strip()
+                } if listing.find_previous_sibling('div', class_='directorist-listing-single__header') else {}
+            ),
+            **{
+                detail_key: text_div.text.strip()
+                for li in listing.find('div', class_='directorist-listing-single__info--list').find_all('li')
+                if (text_div := li.find('div', class_='directorist-listing-card-text')) and text_div.i
+                for detail_key, icon_check in [
+                    ('clinic', "comment-solid"),
+                    ('address', "map-marker-solid"),
+                    ('NPI', "comment-solid")
+                ]
+                if icon_check in text_div.i.get('style', '') and (
+                    (detail_key == 'NPI' and "NPI" in text_div.text.strip()) or 
+                    (detail_key != 'NPI' and "NPI" not in text_div.text.strip())
+                )
+            },
+            **{
+                'phone': phone_div.a.text.strip()
+                for li in listing.find('div', class_='directorist-listing-single__info--list').find_all('li')
+                if (phone_div := li.find('div', class_='directorist-listing-card-phone')) and phone_div.a
+            },
+            **{
+                'accepting_patients': select_div.text.split(":")[1].strip()
+                for li in listing.find('div', class_='directorist-listing-single__info--list').find_all('li')
+                if (select_div := li.find('div', class_='directorist-listing-card-select')) and "check-circle-solid" in select_div.i.get('style', '')
+            }
+        }
+        for listing in listings
+    ]
     return results
+
 
 def scrape_provider_search(url):
     """Scrapes provider search results from the given URL and returns the data in JSON format."""
@@ -274,32 +289,6 @@ Adjust the page number and search term as needed. You can validate the correct l
 Remember to consistently follow this approach, ensuring thorough searches and comprehensive provider information from the Sonder Health Plans website.
 You can check online for any information using the scrape_content custom function when needed.
 """
-
-# Function to create an assistant and save its ID
-def get_or_create_assistant():
-    """Check if the assistant ID is hardcoded or create a new one."""
-    # Hardcoded assistant ID
-    assistant_id = "asst_HOYn8BMsGeAhIkXiSTh4iivx"
-    
-    if assistant_id:
-        st.sidebar.success(f"Using existing assistant with ID: {assistant_id}")
-    else:
-        try:
-            with st.spinner("Creating a new assistant..."):
-                assistant = client.beta.assistants.create(
-                    name="ProviderFetcher",
-                    instructions=instructions,
-                    model="gpt-4o-mini",
-                    tools=tools
-                )
-            assistant_id = assistant.id
-            st.sidebar.success(f"Assistant created successfully with ID: {assistant_id}")
-        except Exception as e:
-            st.error(f"Failed to create assistant: {e}")
-            assistant_id = None
-    
-    return assistant_id
-
 
 # Function to handle tool outputs
 def handle_tool_outputs(run):
