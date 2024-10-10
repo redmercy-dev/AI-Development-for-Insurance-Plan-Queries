@@ -491,7 +491,7 @@ def main():
                 if "downloads" in message:
                     for file_name, file_content in message["downloads"]:
                         st.download_button(
-                            label=f"Download {file_name}",
+                            label=f"Download {file_name} click here",
                             data=file_content,
                             file_name=file_name,
                             mime="application/octet-stream"
