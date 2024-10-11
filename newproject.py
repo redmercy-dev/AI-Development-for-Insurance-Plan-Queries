@@ -33,7 +33,7 @@ API_KEY = proxy_api_key
 def get_or_create_assistant():
     """Check if the assistant ID is hardcoded or create a new one."""
     # Hardcoded assistant ID
-    assistant_id = "asst_2z6mDnsoHquqdZCK6Z06IUi"
+    assistant_id = ""
     
     if assistant_id:
         st.sidebar.success(f"Using existing assistant with ID: {assistant_id}")
