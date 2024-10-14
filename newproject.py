@@ -297,15 +297,14 @@ def handle_tool_outputs(run):
             with st.spinner(f"Executing a detailed search..."):
                 output = safe_tool_call(function, function_name, **arguments)
 
-            #st.write(f"Output from {function_name}:")
-            #st.json(output)
             tool_outputs.append({
                 "tool_call_id": call.id,
                 "output": json.dumps(output)
             })
 
+        # Use the correct user-specific thread ID here
         return client.beta.threads.runs.submit_tool_outputs(
-            thread_id=st.session_state.global_thread.id,
+            thread_id=st.session_state.user_thread.id,
             run_id=run.id,
             tool_outputs=tool_outputs
         )
@@ -313,6 +312,7 @@ def handle_tool_outputs(run):
         st.error(f"Error in handle_tool_outputs: {str(e)}")
         st.error(traceback.format_exc())
         return None
+
 
 # Function to get agent response
 async def get_agent_response(assistant_id, user_message):
