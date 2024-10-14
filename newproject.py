@@ -22,8 +22,8 @@ proxy_api_key = st.secrets["api_keys"]["proxy_api_key"]
 client = OpenAI(api_key=openai_api_key)
 
 # Global thread initialization
-if 'global_thread' not in st.session_state:
-    st.session_state.global_thread = client.beta.threads.create()
+if 'user_thread' not in st.session_state:
+    st.session_state.user_thread = client.beta.threads.create()
 
 # Proxy setup
 PROXY_URL = 'https://proxy.scrapeops.io/v1/'
@@ -318,27 +318,28 @@ def handle_tool_outputs(run):
 async def get_agent_response(assistant_id, user_message):
     try:
         with st.spinner("Processing your request..."):
+            # Use the unique thread for each session
             client.beta.threads.messages.create(
-                thread_id=st.session_state.global_thread.id,
+                thread_id=st.session_state.user_thread.id,
                 role="user",
                 content=user_message,
             )
 
             run = client.beta.threads.runs.create(
-                thread_id=st.session_state.global_thread.id,
-                assistant_id=assistant_id
+                thread_id=st.session_state.user_thread.id,
+                assistant_id=assistant_id,
             )
 
             while run.status in ["queued", "in_progress"]:
                 run = client.beta.threads.runs.retrieve(
-                    thread_id=st.session_state.global_thread.id,
+                    thread_id=st.session_state.user_thread.id,
                     run_id=run.id
                 )
                 if run.status == "requires_action":
                     run = handle_tool_outputs(run)
                 await asyncio.sleep(1)
 
-            last_message = client.beta.threads.messages.list(thread_id=st.session_state.global_thread.id, limit=1).data[0]
+            last_message = client.beta.threads.messages.list(thread_id=st.session_state.user_thread.id, limit=1).data[0]
 
             formatted_response_text = ""
             download_links = []
